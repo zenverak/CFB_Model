@@ -155,7 +155,7 @@ def insert_teams(api):
 def insert_games(api,WEEK=1):
     game_list = []
     for week in range(WEEK, globals.WEEK+1):
-        week_games = api.get_games(year=2022, week=week)
+        week_games = api.get_games(year=globals.YEAR, week=week)
         for game in week_games:
             hl = game.home_line_scores
             if hl is None or len(hl) != 4:
@@ -200,6 +200,7 @@ def insert_rankings_data(api,WEEK=1,year=1936):
                             rank['points'],poll['poll'],week.season_type,week.week, week.season]
                     rankings_list.append(data)
     cbd.insert_into_polls(rankings_list)
+    
                     
         
 
@@ -211,9 +212,19 @@ def load_all():
     insert_games(game_api)
     insert_teams(team_api)
     insert_team_stats_data(game_api)
+    
+
+
+###next_weeek
+def load_weeks_data(week):
+    insert_rankings_data(rank_api,week,globals.YEAR)
+    insert_team_stats_data(game_api, week)
+    insert_games(game_api, week)
+    insert_betting_data(bet_api, True)
+    
 
 
 if __name__ == '__main__':
-    insert_rankings_data(rank_api)
+    load_weeks_data(globals.WEEK)
 
 

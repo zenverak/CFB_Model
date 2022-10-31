@@ -1,6 +1,9 @@
 import sqlite3
 import globals
+import os
 
+if not os.path.exists('./database/'):
+    os.mkdir('./database/')
 
 conn = sqlite3.connect(f'database/{globals.DB}')
 
@@ -37,7 +40,6 @@ def dbs():
 
     c.execute("""CREATE UNIQUE INDEX IF NOT EXISTS pollsIDX on polls(school,week,year,poll)""")
 
-###INSERT OR INGORE INTO POLLS VALUES(?,?,?,?,?,?,?,?,?),
 
     c.execute(""" CREATE TABLE IF NOT EXISTS games(
                 game_id integer PRIMARY KEY,
@@ -96,8 +98,6 @@ def dbs():
                 week integer
                 )""")
 
-
-#"SELECT SUM(def_td) from game_stats
 
     c.execute("""CREATE UNIQUE INDEX IF NOT EXISTS statsIDX on game_stats(game_id,team)""")
 
@@ -164,7 +164,7 @@ def get_all_teams():
 def insert_lines(lines):
     global conn
     c = conn.cursor()
-    c.executemany('INSERT INTO lines VALUES(?,?,?,?,?,?,?,?,?,?);',lines)
+    c.executemany('INSERT OR IGNORE INTO lines VALUES(?,?,?,?,?,?,?,?,?,?);',lines)
     conn.commit()
 
 
@@ -293,9 +293,20 @@ def insert_into_polls(data):
 def get_all_rankings_for_team(team):
     global conn
     c = conn.cursor()
-    c.execute(f"select * from polls where team={team}" )
+    c.execute(f"select * from polls where school='{team}'" )
     return c.fetchall()
 
+def get_all_rankings_for_team_with_poll(team,poll):
+    global conn
+    c = conn.cursor()
+    c.execute(f"select * from polls where school='{team}' and poll='{poll}'" )
+    return c.fetchall()
+
+def get_all_rankings_poll(poll):
+    global conn
+    c = conn.cursor()
+    c.execute(f"select * from polls where poll='{poll}'" )
+    return c.fetchall()    
 
 def get_poll_year(year, poll):
     global conn
@@ -311,5 +322,5 @@ def get_all_poll():
 
 
 if __name__ == "__main__":
-    h = get_all_poll()
+    t = get_all_rankings_for_team_with_poll('Tulane','AP Top 25')
     
